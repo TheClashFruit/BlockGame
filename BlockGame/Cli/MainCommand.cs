@@ -1,7 +1,7 @@
-﻿using MinecraftClone.Cli.Settings;
+﻿using BlockGame.Cli.Settings;
 using Spectre.Console.Cli;
 
-namespace MinecraftClone.Cli;
+namespace BlockGame.Cli;
 
 public class MainCommand : Command<MainSettings> {
     public override int Execute(CommandContext context, MainSettings settings) {

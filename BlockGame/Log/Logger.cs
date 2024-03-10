@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Spectre.Console;
 
-namespace MinecraftClone.Log;
+namespace BlockGame.Log;
 
 public class Logger {
     public static void Info(string tag, string message) {

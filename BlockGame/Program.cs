@@ -1,8 +1,8 @@
-﻿using MinecraftClone.Cli;
-using MinecraftClone.Log;
+﻿using BlockGame.Cli;
+using BlockGame.Log;
 using Spectre.Console.Cli;
 
-namespace MinecraftClone;
+namespace BlockGame;
 
 class Program {
     static readonly string tag = "BlockGame";

@@ -1,6 +1,6 @@
 ﻿using Spectre.Console.Cli;
 
-namespace MinecraftClone.Cli.Settings;
+namespace BlockGame.Cli.Settings;
 
 public class MainSettings : CommandSettings {
     [CommandOption("-h|--height <HEIGHT>")]

@@ -1,7 +1,7 @@
-﻿using MinecraftClone.Log;
+﻿using BlockGame.Log;
 using OpenTK.Graphics.OpenGL4;
 
-namespace MinecraftClone;
+namespace BlockGame;
 
 public class Shader {
     public readonly int Handle;
