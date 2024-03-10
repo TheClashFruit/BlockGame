@@ -1,5 +1,8 @@
-﻿using BlockGame.Log;
+﻿using BlockGame.Graphics;
+using BlockGame.Log;
+using BlockGame.Util;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -7,57 +10,145 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 namespace BlockGame;
 
 public class Game : GameWindow {
-    private int _vertexBufferObject;
-    private int _vertexArrayObject;
+    private VAO _vao;
+    private IBO _ibo;
 
-    private int _elementBufferObject ;
+    private Shader  _shader;
+    private Texture _texture;
 
-    private Shader _shader;
+    private Camera _camera;
 
-    private readonly float[] _vertices = {
-        0.5f,  0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
+    private float _yRot = 0f;
+
+    List<Vector3> vertices = new List<Vector3>() {
+        // front face
+        new Vector3(-0.5f, 0.5f, 0.5f), // topleft vert
+        new Vector3(0.5f, 0.5f, 0.5f), // topright vert
+        new Vector3(0.5f, -0.5f, 0.5f), // bottomright vert
+        new Vector3(-0.5f, -0.5f, 0.5f), // bottomleft vert
+        // right face
+        new Vector3(0.5f, 0.5f, 0.5f), // topleft vert
+        new Vector3(0.5f, 0.5f, -0.5f), // topright vert
+        new Vector3(0.5f, -0.5f, -0.5f), // bottomright vert
+        new Vector3(0.5f, -0.5f, 0.5f), // bottomleft vert
+        // back face
+        new Vector3(0.5f, 0.5f, -0.5f), // topleft vert
+        new Vector3(-0.5f, 0.5f, -0.5f), // topright vert
+        new Vector3(-0.5f, -0.5f, -0.5f), // bottomright vert
+        new Vector3(0.5f, -0.5f, -0.5f), // bottomleft vert
+        // left face
+        new Vector3(-0.5f, 0.5f, -0.5f), // topleft vert
+        new Vector3(-0.5f, 0.5f, 0.5f), // topright vert
+        new Vector3(-0.5f, -0.5f, 0.5f), // bottomright vert
+        new Vector3(-0.5f, -0.5f, -0.5f), // bottomleft vert
+        // top face
+        new Vector3(-0.5f, 0.5f, -0.5f), // topleft vert
+        new Vector3(0.5f, 0.5f, -0.5f), // topright vert
+        new Vector3(0.5f, 0.5f, 0.5f), // bottomright vert
+        new Vector3(-0.5f, 0.5f, 0.5f), // bottomleft vert
+        // bottom face
+        new Vector3(-0.5f, -0.5f, 0.5f), // topleft vert
+        new Vector3(0.5f, -0.5f, 0.5f), // topright vert
+        new Vector3(0.5f, -0.5f, -0.5f), // bottomright vert
+        new Vector3(-0.5f, -0.5f, -0.5f), // bottomleft vert
     };
 
-    private readonly uint[] _indices = {
-        0, 1, 3,
-        1, 2, 3
+    List<Vector2> texCoords = new List<Vector2>() {
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+    };
+
+    List<uint> indices = new List<uint> {
+        // first face
+        // top triangle
+        0, 1, 2,
+        // bottom triangle
+        2, 3, 0,
+
+        4, 5, 6,
+        6, 7, 4,
+
+        8, 9, 10,
+        10, 11, 8,
+
+        12, 13, 14,
+        14, 15, 12,
+
+        16, 17, 18,
+        18, 19, 16,
+
+        20, 21, 22,
+        22, 23, 20
     };
 
     public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() {
         ClientSize = (width, height),
         Title = title
-    }) { }
+    }) {
+        CenterWindow((width, height));
+    }
 
     protected override void OnLoad() {
         base.OnLoad();
 
         VSync = VSyncMode.On;
 
-        GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        _vao = new VAO();
 
-        _vertexBufferObject  = GL.GenBuffer();
-        _elementBufferObject = GL.GenBuffer();
+        VBO vbo = new VBO(vertices);
+        VBO uvVbo = new VBO(texCoords);
 
-        GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
+        _vao.LinkToVao(0, 3, vbo);
+        _vao.LinkToVao(1, 2, uvVbo);
 
-        _vertexArrayObject = GL.GenVertexArray();
+        _ibo     = new IBO(indices);
+        _shader  = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+        _texture = new Texture("Resources/stone.png");
 
-        GL.BindVertexArray(_vertexArrayObject);
+        float[] colour = ColourUtil.RgbToFloat(135, 206, 235);
 
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+        GL.ClearColor(colour[0], colour[1], colour[2], 1.0f);
 
-        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+        _camera = new Camera(ClientSize.X, ClientSize.Y, Vector3.Zero);
 
-        GL.EnableVertexAttribArray(0);
+        CursorState = CursorState.Grabbed;
+    }
 
-        _shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+    protected override void OnUnload() {
+        base.OnUnload();
 
-        _shader.Use();
+        _vao.Dispose();
+        _ibo.Dispose();
+
+        _texture.Dispose();
+        _shader.Dispose();
     }
 
     protected override void OnRenderFrame(FrameEventArgs e) {
@@ -65,11 +156,39 @@ public class Game : GameWindow {
 
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
-        _shader.Use();
+        _shader.Bind();
 
-        GL.BindVertexArray(_vertexArrayObject);
+        _vao.Bind();
+        _ibo.Bind();
 
-        GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+        _texture.Bind();
+
+        Matrix4 model = Matrix4.Identity;
+        Matrix4 view = _camera.GetViewMatrix();
+        Matrix4 projection = _camera.GetProjectionMatrix();
+
+        model = Matrix4.CreateRotationY(_yRot);
+
+        _yRot += 0.001f;
+
+        Matrix4 translation = Matrix4.CreateTranslation(0f, 0f, -3f);
+
+        model *= translation;
+
+        int modelLocation      = GL.GetUniformLocation(_shader.id, "model");
+        int viewLocation       = GL.GetUniformLocation(_shader.id, "view");
+        int projectionLocation = GL.GetUniformLocation(_shader.id, "projection");
+
+        GL.UniformMatrix4(modelLocation, true, ref model);
+        GL.UniformMatrix4(viewLocation, true, ref view);
+        GL.UniformMatrix4(projectionLocation, true, ref projection);
+
+        GL.DrawElements(PrimitiveType.Triangles, indices.Count, DrawElementsType.UnsignedInt, 0);
+
+        model += Matrix4.CreateTranslation(new Vector3(2f, 0f, 0f));
+
+        GL.UniformMatrix4(modelLocation, true, ref model);
+        GL.DrawElements(PrimitiveType.Triangles, indices.Count, DrawElementsType.UnsignedInt, 0);
 
         SwapBuffers();
     }
@@ -77,12 +196,17 @@ public class Game : GameWindow {
     protected override void OnUpdateFrame(FrameEventArgs e) {
         base.OnUpdateFrame(e);
 
+        KeyboardState keyboardState = KeyboardState;
+        MouseState mouseState = MouseState;
+
         if (!IsFocused)
             return;
 
         Title = $"Minecraft Clone - FPS: {1f / e.Time:0}";
 
-        if (KeyboardState.IsKeyDown(Keys.Escape)) {
+        _camera.Update(keyboardState, mouseState, e);
+
+        if (keyboardState.IsKeyDown(Keys.Escape)) {
             Logger.Info("BlockGame", "Escape key pressed, closing game...");
 
             Close();
@@ -95,19 +219,5 @@ public class Game : GameWindow {
         GL.Viewport(0, 0, e.Width, e.Height);
 
         Logger.Info("Window", $"{e.Width}, {e.Height}");
-    }
-
-    protected override void OnUnload() {
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-        GL.BindVertexArray(0);
-        GL.UseProgram(0);
-
-        // Delete all the resources.
-        GL.DeleteBuffer(_vertexBufferObject);
-        GL.DeleteVertexArray(_vertexArrayObject);
-
-        GL.DeleteProgram(_shader.Handle);
-
-        base.OnUnload();
     }
 }
