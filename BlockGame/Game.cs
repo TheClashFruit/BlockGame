@@ -129,12 +129,14 @@ public class Game : GameWindow {
         _vao.LinkToVao(1, 2, uvVbo);
 
         _ibo     = new IBO(indices);
-        _shader  = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+        _shader  = new Shader("Shaders.shader.vert", "Shaders.shader.frag");
         _texture = new Texture("Resources/stone.png");
 
         float[] colour = ColourUtil.RgbToFloat(135, 206, 235);
 
         GL.ClearColor(colour[0], colour[1], colour[2], 1.0f);
+
+        GL.Enable(EnableCap.DepthTest);
 
         _camera = new Camera(ClientSize.X, ClientSize.Y, Vector3.Zero);
 
@@ -154,7 +156,7 @@ public class Game : GameWindow {
     protected override void OnRenderFrame(FrameEventArgs e) {
         base.OnRenderFrame(e);
 
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         _shader.Bind();
 
@@ -202,7 +204,7 @@ public class Game : GameWindow {
         if (!IsFocused)
             return;
 
-        Title = $"Minecraft Clone - FPS: {1f / e.Time:0}";
+        Title = $"BlockGame - FPS: {1f / e.Time:0}";
 
         _camera.Update(keyboardState, mouseState, e);
 

@@ -1,3 +1,4 @@
+using BlockGame.Util;
 using OpenTK.Graphics.OpenGL4;
 
 namespace BlockGame.Graphics;
@@ -6,8 +7,8 @@ public class Shader {
     public int id;
 
     public Shader(string vertexShaderPath, string fragmentShaderPath) {
-        string vertexShaderSource   = File.ReadAllText(vertexShaderPath);
-        string fragmentShaderSource = File.ReadAllText(fragmentShaderPath);
+        string vertexShaderSource   = FileUtil.GetEmbeddedResource(vertexShaderPath);
+        string fragmentShaderSource = FileUtil.GetEmbeddedResource(fragmentShaderPath);
 
         id = GL.CreateProgram();
 

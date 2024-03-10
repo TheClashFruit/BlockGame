@@ -6,7 +6,7 @@ namespace BlockGame;
 
 public class Camera {
     private float _speed = 8.0f;
-    private float _sensitivity = 180.0f;
+    private float _sensitivity = 40.0f;
 
     private float _screenWidth;
     private float _screenHeight;

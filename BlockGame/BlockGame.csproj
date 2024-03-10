@@ -16,15 +16,20 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Shaders\shader.frag">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\shader.vert">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
       <None Update="Resources\stone.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Shaders\shader.frag" />
+      <EmbeddedResource Include="Shaders\shader.frag">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Shaders\shader.vert" />
+      <EmbeddedResource Include="Shaders\shader.vert">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
 
 </Project>
