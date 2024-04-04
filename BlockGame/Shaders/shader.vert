@@ -7,9 +7,12 @@ out vec2 texCoord;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec3 chunkPosition;
 
 void main() {
-    gl_Position = vec4(aPosition, 1.0) * model * view * projection;
+    vec4 worldPosition = vec4(aPosition + chunkPosition, 1.0);
+
+    gl_Position = worldPosition * model * view * projection;
 
     texCoord = aTexCoord;
 }

@@ -37,11 +37,9 @@ public class Chunk {
         Build();
     }
 
-    public void GenerateWorld() {}
-
     public void GenerateChunk() {
         for (int x = 0; x <= 16; x++) {
-            for (int y = 0; y <= 256; y++) {
+            for (int y = 0; y <= 3; y++) {
                 for (int z = 0; z <= 16; z++) {
                     Stone stone = new Stone(new Vector3(x, y, z));
 
@@ -92,7 +90,7 @@ public class Chunk {
                         faceCount++;
                     }
 
-                    if (y == 256) {
+                    if (y == 3) {
                         var topFaceData = stone.GetFace(Faces.TOP);
 
                         _chunkVertices.AddRange(topFaceData.vertices);
@@ -139,6 +137,7 @@ public class Chunk {
 
     public void Render(Shader _shader) {
         _shader.Bind();
+        _shader.SetUniform("chunkPosition", position);
 
         _vao.Bind();
         _ibo.Bind();

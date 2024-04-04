@@ -1,4 +1,5 @@
-﻿using BlockGame.Graphics;
+﻿using System.Collections;
+using BlockGame.Graphics;
 using BlockGame.Log;
 using BlockGame.Util;
 using BlockGame.World;
@@ -15,7 +16,7 @@ public class Game : GameWindow {
 
     private float _yRot = 0f;
 
-    private Chunk _chunk;
+    private List<Chunk> _chunks = new ();
 
     float[] colour = ColourUtil.RgbToFloat(135, 206, 235);
 
@@ -35,10 +36,17 @@ public class Game : GameWindow {
 
         GL.ClearColor(colour[0], colour[1], colour[2], 1.0f);
 
+        GL.FrontFace(FrontFaceDirection.Cw);
         GL.Enable(EnableCap.DepthTest);
+        GL.CullFace(CullFaceMode.Back);
 
         _shader = new Shader("Shaders.shader.vert", "Shaders.shader.frag");
-        _chunk  = new Chunk(Vector3.Zero);
+
+        _chunks.Add(new Chunk((0, 0, 0)));
+        _chunks.Add(new Chunk((17, 0, 0)));
+        _chunks.Add(new Chunk((17, 0, 17)));
+        _chunks.Add(new Chunk((0, 0, 17)));
+
         _camera = new Camera(ClientSize.X, ClientSize.Y, Vector3.Zero);
 
         CursorState = CursorState.Grabbed;
@@ -67,7 +75,9 @@ public class Game : GameWindow {
         GL.UniformMatrix4(viewLocation, true, ref view);
         GL.UniformMatrix4(projectionLocation, true, ref projection);
 
-        _chunk.Render(_shader);
+        foreach (var chunk in _chunks) {
+            chunk.Render(_shader);
+        }
 
         SwapBuffers();
     }

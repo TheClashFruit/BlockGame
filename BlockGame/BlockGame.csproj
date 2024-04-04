@@ -24,7 +24,7 @@
       <EmbeddedResource Include="Shaders\shader.vert">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
-      <None Update="Resources\stone.png">
+      <None Update="Resources\textures\block\stone.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
